@@ -1,0 +1,49 @@
+version: '3'
+services:
+
+  filebeat:
+    container_name: filebeat 
+    hostname: filebeat 
+    image: 'client-filebeat'
+    restart: always
+    build: ./filebeat
+    networks:
+      - elk-network
+
+  elasticsearch:
+    container_name: elasticsearch
+    hostname: elasticsearch
+    image: 'elasticsearch:6.6.1'
+    restart: always
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    networks:
+      - elk-network
+
+  logstash:
+    container_name: logstash
+    hostname: logstash
+    image: 'logstash-filebeat'
+    restart: always
+    build: ./logstash
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: 'kibana:6.6.1'
+    restart: always
+    ports:
+      - '5601:5601'
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+networks:
+  elk-network:
+    driver: bridge
